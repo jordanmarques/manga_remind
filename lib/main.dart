@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:manga_remind/remind-card.dart';
-import 'package:manga_remind/remind.dart';
+import 'package:manga_remind/remind/ui/remind-card.dart';
+import 'package:manga_remind/remind/model/reminds-model.dart';
 
 void main() => runApp(MyApp());
 
@@ -10,8 +10,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Mangas Remind',
       theme: ThemeData(
-        primarySwatch: Colors.amber,
-      ),
+          primarySwatch: Colors.amber,
+          primaryTextTheme: TextTheme(title: TextStyle(color: Colors.white))),
       home: MyHomePage(title: 'Mangas Remind'),
     );
   }
@@ -27,12 +27,23 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  final remindsModel = RemindsModel();
 
-  void _incrementCounter() {
+  List<Remind> _reminds = [];
+  String _episodeInput;
+  String _nameInput;
+
+  _handleRemindsChange() {
     setState(() {
-      _counter++;
+      _reminds = remindsModel.reminds;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _reminds = remindsModel.reminds;
+    remindsModel.addListener(_handleRemindsChange);
   }
 
   @override
@@ -43,16 +54,71 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: ListView(
-          children: const <Widget>[
-            RemindCard(remind: Remind(name: "One Piece", episode: 2)),
-          ],
+          children: transformRemindToRemindCards(_reminds),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
+          tooltip: 'Increment',
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            _settingModalBottomSheet(context);
+          }),
+    );
+  }
+
+  List<RemindCard> transformRemindToRemindCards(List<Remind> reminds) {
+    var sortedList = new List<Remind>.from(reminds)..sort((a, b) => a.name.compareTo(b.name));
+
+    return sortedList
+        .map((remind) => RemindCard(
+              remind: remind,
+              onTap: () {
+                remindsModel.incrementRemind(remind);
+              },
+            ))
+        .toList();
+  }
+
+  void _settingModalBottomSheet(context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text("Add Remind"),
+          content: Wrap(
+            children: <Widget>[
+              TextField(
+                decoration: InputDecoration(hintText: "Name"),
+                onChanged: (text) {
+                  _nameInput = text;
+                },
+              ),
+              TextField(
+                decoration: InputDecoration(
+                    hintText: "The number of episodes you watched"),
+                onChanged: (text) {
+                  _episodeInput = text;
+                },
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Add"),
+              onPressed: () {
+                setState(() {
+                  remindsModel.add(Remind(
+                      episode: int.parse(_episodeInput), name: _nameInput));
+                  Navigator.of(context).pop();
+                });
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
