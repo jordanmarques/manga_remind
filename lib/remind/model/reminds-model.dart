@@ -16,6 +16,11 @@ class RemindsModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  remove(Remind item) {
+    _reminds.remove(item);
+    notifyListeners();
+  }
+
   void incrementRemind(Remind remind) {
     var cleanList = _reminds
         .where((r) => r.name != remind.name)

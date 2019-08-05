@@ -14,7 +14,9 @@ class RemindCard extends StatelessWidget {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text(remind.name),
+            Text(
+                remind.name,
+                style: TextStyle(fontSize: 20)),
             Text(
               remind.episode.toString(),
               style: TextStyle(fontWeight: FontWeight.bold),

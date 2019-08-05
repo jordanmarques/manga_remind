@@ -51,7 +51,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     var redBorederedText = BorderedText(
       strokeWidth: 7.0,
       strokeColor: Color.fromRGBO(217, 33, 20, 1),
@@ -67,11 +66,11 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: ListView(
-          children: transformRemindToRemindCards(_reminds),
+          children: _convertRemindsToDismissibleRemindCards(_reminds),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-          tooltip: 'Increment',
+          tooltip: 'New Remind',
           child: Icon(
             Icons.add,
             color: Colors.white,
@@ -82,21 +81,46 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  List<RemindCard> transformRemindToRemindCards(List<Remind> reminds) {
+  List<Dismissible> _convertRemindsToDismissibleRemindCards(List<Remind> reminds) {
     var sortedList = new List<Remind>.from(reminds)
       ..sort((a, b) => a.name.compareTo(b.name));
 
     return sortedList
-        .map((remind) => RemindCard(
-              remind: remind,
-              onTap: () {
-                remindsModel.incrementRemind(remind);
-              },
-            ))
+        .map((remind) => _toRemindCard(remind))
+        .map((remindCard) => _toDismissibleRemindCard(remindCard))
         .toList();
   }
 
-  void _settingModalBottomSheet(context) {
+  RemindCard _toRemindCard(Remind remind) {
+    return RemindCard(
+      remind: remind,
+      onTap: () {
+        remindsModel.incrementRemind(remind);
+      },
+    );
+  }
+
+  Dismissible _toDismissibleRemindCard(RemindCard remindCard) {
+    return Dismissible(
+        key: Key(UniqueKey().toString()),
+        direction: DismissDirection.startToEnd,
+        onDismissed: (direction) => {remindsModel.remove(remindCard.remind)},
+        background: Container(
+            color: Colors.transparent,
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                      margin: EdgeInsets.only(left: 20.0),
+                      child: Text(
+                        "Delete",
+                        style: TextStyle(color: Colors.red),
+                      ))
+                ])),
+        child: remindCard);
+  }
+
+  _settingModalBottomSheet(context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
