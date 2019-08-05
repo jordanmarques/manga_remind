@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:manga_remind/remind/ui/remind-card.dart';
 import 'package:manga_remind/remind/model/reminds-model.dart';
 
+import 'components/bordered-text.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -10,6 +12,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Mangas Remind',
       theme: ThemeData(
+          fontFamily: 'GochiHand',
           primarySwatch: Colors.amber,
           primaryTextTheme: TextTheme(title: TextStyle(color: Colors.white))),
       home: MyHomePage(title: 'Mangas Remind'),
@@ -48,9 +51,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    var redBorederedText = BorderedText(
+      strokeWidth: 7.0,
+      strokeColor: Color.fromRGBO(217, 33, 20, 1),
+      child: Text(
+        widget.title,
+        style: TextStyle(fontSize: 30),
+      ),
+    );
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: redBorederedText,
       ),
       body: Center(
         child: ListView(
@@ -70,7 +83,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<RemindCard> transformRemindToRemindCards(List<Remind> reminds) {
-    var sortedList = new List<Remind>.from(reminds)..sort((a, b) => a.name.compareTo(b.name));
+    var sortedList = new List<Remind>.from(reminds)
+      ..sort((a, b) => a.name.compareTo(b.name));
 
     return sortedList
         .map((remind) => RemindCard(
