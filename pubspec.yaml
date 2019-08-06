@@ -4,23 +4,28 @@ description: A manga reminder application.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^0.1.2
+  flutter_launcher_icons: "^0.7.2"
+  shared_preferences: "0.5.3+4"
+  json_serializable: ^3.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/icon.png"
+
 flutter:
   fonts:
-    - family: AnimeAce
-      fonts:
-        - asset: fonts/animeace.ttf
     - family: GochiHand
       fonts:
-        - asset: fonts/GochiHand-Regular.ttf
+        - asset: assets/fonts/GochiHand-Regular.ttf
   uses-material-design: true

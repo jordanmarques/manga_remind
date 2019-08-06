@@ -1,36 +1,61 @@
 import 'dart:collection';
-
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RemindsModel extends ChangeNotifier {
-  List<Remind> _reminds = [
-    Remind(name: "One Piece", episode: 2),
-    Remind(name: "Haikyu", episode: 2),
-    Remind(name: "DBZ Super", episode: 2)
-  ];
+  List<Remind> _reminds = [];
+  final _prefs = SharedPreferences.getInstance();
 
   UnmodifiableListView<Remind> get reminds => UnmodifiableListView(_reminds);
 
-  void add(Remind item) {
-    _reminds.add(item);
-    notifyListeners();
+  RemindsModel() {
+    _prefs.then((prefs) {
+      _reminds = json.decode(prefs.get("reminds") ?? "[]");
+      notifyListeners();
+    });
   }
 
-  remove(Remind item) {
-    _reminds.remove(item);
-    notifyListeners();
+  void add(Remind item) {
+    _persistReminds((reminds) {
+      reminds.add(item);
+      return reminds;
+    });
+  }
+
+  void remove(Remind item) {
+    _persistReminds((reminds) {
+      return reminds.where((remind) => remind.name != item.name).toList();
+    });
   }
 
   void incrementRemind(Remind remind) {
-    var cleanList = _reminds
-        .where((r) => r.name != remind.name)
-        .toList();
+    _persistReminds((reminds) {
+      var cleanList = reminds.where((r) => r.name != remind.name).toList();
 
-    cleanList.add(remind.incrementAndGet());
+      cleanList.add(remind.incrementAndGet());
 
-    _reminds = cleanList;
+      return cleanList;
+    });
+  }
 
-    notifyListeners();
+  _persistReminds(Function actions) {
+    _prefs.then((prefs) {
+      List<Remind> persistedReminds = _jsonToRemindList(prefs.get("reminds") ?? "[]");
+      List<Remind> modifiedReminds = actions(persistedReminds);
+      prefs.setString("reminds", json.encode(modifiedReminds));
+      _reminds = modifiedReminds;
+      notifyListeners();
+    });
+  }
+
+  List<Remind> _jsonToRemindList(String jsonString) {
+    var parsed = json
+        .decode(jsonString)
+        .cast<Map<String, dynamic>>();
+    List<Remind> persistedReminds =
+        parsed.map<Remind>((json) => Remind.fromJson(json)).toList();
+    return persistedReminds;
   }
 }
 
@@ -41,6 +66,13 @@ class Remind {
   Remind incrementAndGet() {
     return Remind(episode: this.episode + 1, name: this.name);
   }
+
+  factory Remind.fromJson(Map<String, dynamic> json) {
+    return Remind(
+        name: json['name'] as String, episode: json['episode'] as int);
+  }
+
+  Map<String, dynamic> toJson() => {'name': name, 'episode': episode};
 
   const Remind({this.episode, this.name});
 }

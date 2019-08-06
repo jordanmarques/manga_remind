@@ -10,6 +10,7 @@ class RemindCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+
       child: ListTile(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
