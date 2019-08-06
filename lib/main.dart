@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:manga_remind/remind/ui/remind-card.dart';
-import 'package:manga_remind/remind/model/reminds-model.dart';
+import 'package:manga_remind/remind/ui/remind_card.dart';
+import 'package:manga_remind/remind/model/reminds_model.dart';
 
-import 'components/bordered-text.dart';
+import 'components/bordered_text.dart';
 
 void main() => runApp(MyApp());
 

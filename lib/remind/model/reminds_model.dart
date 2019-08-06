@@ -11,7 +11,7 @@ class RemindsModel extends ChangeNotifier {
 
   RemindsModel() {
     _prefs.then((prefs) {
-      _reminds = json.decode(prefs.get("reminds") ?? "[]");
+      _reminds = _jsonToRemindList(prefs.get("reminds") ?? "[]");
       notifyListeners();
     });
   }
